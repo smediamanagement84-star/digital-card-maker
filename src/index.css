@@ -1,0 +1,189 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Outfit:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Source Serif 4", "Cormorant Garamond", ui-serif, Georgia, serif;
+  --font-serif: "Source Serif 4", "Cormorant Garamond", ui-serif, Georgia, serif;
+  --font-playfair: "Playfair Display", serif;
+  --font-inter: "Inter", sans-serif;
+  --font-outfit: "Outfit", sans-serif;
+  --font-space: "Space Grotesk", sans-serif;
+}
+
+/* ─────────────────────────────────────────────
+   Claude-style warm dark palette.
+   Deep warm bg, coral primary, generous space.
+   Designed to be cheap to paint — no animated gradients,
+   no SVG noise overlay, no chained backdrop-filters.
+   ───────────────────────────────────────────── */
+
+:root {
+  --bg: #15130F;
+  --surface: rgba(34, 32, 28, 0.7);
+  --surface-strong: rgba(28, 26, 22, 0.95);
+  --border: rgba(244, 241, 234, 0.08);
+  --border-strong: rgba(244, 241, 234, 0.14);
+  --text: #F4F1EA;
+  --text-muted: rgba(244, 241, 234, 0.55);
+  --text-faint: rgba(244, 241, 234, 0.35);
+  --accent: #D97757;
+  --accent-hover: #E0876A;
+  --accent-soft: rgba(217, 119, 87, 0.14);
+  --accent-glow: rgba(217, 119, 87, 0.28);
+}
+
+html, body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--bg);
+  color: var(--text);
+  overscroll-behavior-y: contain;
+}
+
+* { -webkit-tap-highlight-color: transparent; }
+
+/* iOS auto-zoom prevention */
+@media (max-width: 640px) {
+  input, textarea, select { font-size: 16px !important; }
+}
+
+/* Slightly larger touch targets on mobile */
+@media (max-width: 640px) {
+  button, a.btn-primary, a.btn-ghost { min-height: 44px; }
+}
+
+/* ── App shell ── */
+.app-bg {
+  background:
+    radial-gradient(1200px 600px at 50% -200px, rgba(217, 119, 87, 0.08), transparent 70%),
+    var(--bg);
+  min-height: 100vh;
+}
+
+/* ── Surfaces ── */
+.glass {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+}
+
+.glass-strong {
+  background: var(--surface-strong);
+  border: 1px solid var(--border-strong);
+}
+
+/* Sticky navbar uses a small blur — single layer, cheap */
+.nav-blur {
+  background: rgba(21, 19, 15, 0.72);
+  -webkit-backdrop-filter: saturate(180%) blur(12px);
+  backdrop-filter: saturate(180%) blur(12px);
+}
+
+/* ── Typography ── */
+.font-display { font-family: var(--font-display); }
+
+.gradient-text {
+  background: linear-gradient(135deg, var(--accent), #F4A57E);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* ── Buttons ── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent);
+  color: var(--bg);
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  transition: background 0.15s ease, transform 0.12s ease;
+}
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-primary:active { transform: translateY(1px); }
+.btn-primary:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(244, 241, 234, 0.04);
+  color: var(--text);
+  font-weight: 500;
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  border: 1px solid var(--border);
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.btn-ghost:hover { background: rgba(244, 241, 234, 0.08); border-color: var(--border-strong); }
+
+/* ── Form ── */
+.input-glass {
+  width: 100%;
+  background: rgba(244, 241, 234, 0.03);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 0.75rem 1rem;
+  color: var(--text);
+  font-size: 14px;
+  transition: border-color 0.15s, background 0.15s;
+}
+.input-glass::placeholder { color: var(--text-faint); }
+.input-glass:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: rgba(244, 241, 234, 0.05);
+}
+
+/* Card pattern utilities used by the user-selected card themes */
+.pattern-dots {
+  background-image: radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0);
+  background-size: 24px 24px;
+  opacity: 0.05;
+}
+
+.pattern-grid {
+  background-image:
+    linear-gradient(currentColor 1px, transparent 1px),
+    linear-gradient(90deg, currentColor 1px, transparent 1px);
+  background-size: 32px 32px;
+  opacity: 0.06;
+}
+
+.pattern-mesh {
+  background-image:
+    radial-gradient(at 0% 0%, rgba(255, 255, 255, 0.15) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(255, 255, 255, 0.1) 0px, transparent 50%);
+}
+
+/* Hidden scrollbar for tab pills */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+::selection { background: var(--accent-soft); color: var(--text); }
+
+/* Smoother scroll + native momentum on iOS */
+html { -webkit-overflow-scrolling: touch; scroll-behavior: smooth; }
+
+/* Subtle press feedback on touch devices */
+@media (hover: none) {
+  button:active, a:active { transform: scale(0.98); transition: transform 0.08s ease; }
+}
+
+/* Image fade-in to mask network swap */
+img { transition: opacity 0.3s ease; }
+img[loading="lazy"] { background: rgba(255,255,255,0.04); }
+
+/* Reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
