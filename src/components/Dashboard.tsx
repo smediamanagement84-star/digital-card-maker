@@ -213,8 +213,8 @@ export default function Dashboard() {
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <button type="button" onClick={() => setShowPreviewMobile(p => !p)} className="lg:hidden btn-ghost inline-flex items-center gap-2 !py-2 !px-4 text-xs">
-            {showPreviewMobile ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+          <button type="button" onClick={() => setShowPreviewMobile(p => !p)} className="lg:hidden btn-ghost inline-flex items-center gap-2 !py-2.5 !px-4 text-xs min-h-[44px]">
+            {showPreviewMobile ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             {showPreviewMobile ? 'Hide preview' : 'Show preview'}
           </button>
           {data.id && (
@@ -358,14 +358,14 @@ export default function Dashboard() {
               {activeSection === 'links' && (
                 <Section title="Links" desc="Where people can reach you.">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <Field label="Mobile"><input type="tel" value={data.mobile} onChange={e => setData({ ...data, mobile: e.target.value })} className="input-glass" placeholder="+977 …" /></Field>
-                    <Field label="Email"><input type="email" value={data.email} onChange={e => setData({ ...data, email: e.target.value })} className="input-glass" /></Field>
-                    <Field label="Website"><input type="text" value={data.website} onChange={e => setData({ ...data, website: e.target.value })} className="input-glass" placeholder="yourname.dev" /></Field>
-                    <Field label="LinkedIn"><input type="text" value={data.linkedin} onChange={e => setData({ ...data, linkedin: e.target.value })} className="input-glass" placeholder="linkedin.com/in/…" /></Field>
-                    <Field label="GitHub"><input type="text" value={data.github} onChange={e => setData({ ...data, github: e.target.value })} className="input-glass" placeholder="github.com/…" /></Field>
-                    <Field label="Instagram"><input type="text" value={data.instagram} onChange={e => setData({ ...data, instagram: e.target.value })} className="input-glass" /></Field>
-                    <Field label="X (Twitter)"><input type="text" value={data.xSocial} onChange={e => setData({ ...data, xSocial: e.target.value })} className="input-glass" /></Field>
-                    <Field label="Facebook"><input type="text" value={data.facebook} onChange={e => setData({ ...data, facebook: e.target.value })} className="input-glass" /></Field>
+                    <Field label="Mobile"><input type="tel" inputMode="tel" value={data.mobile} onChange={e => setData({ ...data, mobile: e.target.value })} className="input-glass" placeholder="+977 …" autoComplete="tel" /></Field>
+                    <Field label="Email"><input type="email" inputMode="email" value={data.email} onChange={e => setData({ ...data, email: e.target.value })} className="input-glass" autoComplete="email" /></Field>
+                    <Field label="Website"><input type="url" inputMode="url" value={data.website} onChange={e => setData({ ...data, website: e.target.value })} className="input-glass" placeholder="yourname.dev" autoComplete="url" /></Field>
+                    <Field label="LinkedIn"><input type="url" inputMode="url" value={data.linkedin} onChange={e => setData({ ...data, linkedin: e.target.value })} className="input-glass" placeholder="linkedin.com/in/…" /></Field>
+                    <Field label="GitHub"><input type="url" inputMode="url" value={data.github} onChange={e => setData({ ...data, github: e.target.value })} className="input-glass" placeholder="github.com/…" /></Field>
+                    <Field label="Instagram"><input type="url" inputMode="url" value={data.instagram} onChange={e => setData({ ...data, instagram: e.target.value })} className="input-glass" /></Field>
+                    <Field label="X (Twitter)"><input type="url" inputMode="url" value={data.xSocial} onChange={e => setData({ ...data, xSocial: e.target.value })} className="input-glass" /></Field>
+                    <Field label="Facebook"><input type="url" inputMode="url" value={data.facebook} onChange={e => setData({ ...data, facebook: e.target.value })} className="input-glass" /></Field>
                   </div>
                 </Section>
               )}
@@ -398,8 +398,8 @@ export default function Dashboard() {
             </motion.div>
           </AnimatePresence>
 
-          <div className="sticky bottom-4 flex justify-center pt-2 z-20">
-            <button type="submit" disabled={saving} className="btn-primary inline-flex items-center gap-2.5 px-8 py-3.5 text-sm shadow-xl shadow-black/40">
+          <div className="sticky bottom-4 flex justify-center pt-2 z-20" style={{ marginBottom: 'env(safe-area-inset-bottom)' }}>
+            <button type="submit" disabled={saving} className="btn-primary inline-flex items-center gap-2.5 px-8 py-3.5 sm:py-3.5 py-4 text-sm shadow-xl shadow-black/40 min-w-[200px] justify-center">
               {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               {data.id ? 'Save changes' : 'Create card'}
             </button>

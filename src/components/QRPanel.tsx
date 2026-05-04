@@ -42,8 +42,8 @@ export default function QRPanel({ slug, accentColor = '#a855f7' }: Props) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-6 items-center">
-        <div ref={wrapperRef} className="relative bg-white p-4 rounded-2xl mx-auto shadow-2xl" style={{ boxShadow: `0 20px 50px -10px ${accentColor}40` }}>
-          <QRCodeCanvas value={url} size={180} level="H" fgColor="#0a0a14" bgColor="#FFFFFF" includeMargin={false} />
+        <div ref={wrapperRef} className="relative bg-white p-4 sm:p-4 p-5 rounded-2xl mx-auto shadow-2xl" style={{ boxShadow: `0 20px 50px -10px ${accentColor}40` }}>
+          <QRCodeCanvas value={url} size={Math.min(window.innerWidth - 120, 200)} level="H" fgColor="#0a0a14" bgColor="#FFFFFF" includeMargin={false} />
           <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full flex items-center justify-center text-lg" style={{ background: accentColor }}>✨</div>
         </div>
 
@@ -59,15 +59,15 @@ export default function QRPanel({ slug, accentColor = '#a855f7' }: Props) {
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <button type="button" onClick={downloadQR} className="btn-primary inline-flex items-center gap-2 !py-2.5 !px-5 text-xs">
-              <Download className="w-3.5 h-3.5" /> Download PNG
+            <button type="button" onClick={downloadQR} className="btn-primary inline-flex items-center gap-2 !py-3 sm:!py-2.5 !px-5 text-xs min-h-[44px]">
+              <Download className="w-4 h-4" /> Download PNG
             </button>
-            <button type="button" onClick={copyLink} className="btn-ghost inline-flex items-center gap-2 !py-2.5 !px-5 text-xs">
-              {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+            <button type="button" onClick={copyLink} className="btn-ghost inline-flex items-center gap-2 !py-3 sm:!py-2.5 !px-5 text-xs min-h-[44px]">
+              {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
               {copied ? 'Copied!' : 'Copy link'}
             </button>
-            <a href={url} target="_blank" rel="noreferrer" className="btn-ghost inline-flex items-center gap-2 !py-2.5 !px-5 text-xs">
-              <ExternalLink className="w-3.5 h-3.5" /> Open
+            <a href={url} target="_blank" rel="noreferrer" className="btn-ghost inline-flex items-center gap-2 !py-3 sm:!py-2.5 !px-5 text-xs min-h-[44px]">
+              <ExternalLink className="w-4 h-4" /> Open
             </a>
           </div>
         </div>

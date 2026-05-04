@@ -74,15 +74,15 @@ export default function Landing() {
               className="flex flex-col sm:flex-row gap-3"
             >
               {user ? (
-                <Link to="/dashboard" className="btn-primary inline-flex items-center justify-center gap-2 !py-3.5">
+                <Link to="/dashboard" className="btn-primary inline-flex items-center justify-center gap-2 !py-4 sm:!py-3.5 min-h-[48px] sm:min-h-[44px]">
                   Go to Dashboard <ArrowRight className="w-4 h-4" />
                 </Link>
               ) : (
-                <button onClick={() => setAuthOpen(true)} className="btn-primary inline-flex items-center justify-center gap-2 !py-3.5">
+                <button onClick={() => setAuthOpen(true)} className="btn-primary inline-flex items-center justify-center gap-2 !py-4 sm:!py-3.5 min-h-[48px] sm:min-h-[44px]">
                   Make my card <ArrowRight className="w-4 h-4" />
                 </button>
               )}
-              <Link to="/d/sample" className="btn-ghost inline-flex items-center justify-center gap-2 !py-3.5">
+              <Link to="/d/sample" className="btn-ghost inline-flex items-center justify-center gap-2 !py-4 sm:!py-3.5 min-h-[48px] sm:min-h-[44px]">
                 <Sparkles className="w-4 h-4" /> See a sample
               </Link>
             </motion.div>

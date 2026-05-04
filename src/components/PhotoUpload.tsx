@@ -89,6 +89,7 @@ export default function PhotoUpload({ value, uid, kind, shape = 'circle', label,
           ref={inputRef}
           type="file"
           accept="image/png,image/jpeg,image/webp,image/heic,image/heif"
+          capture="environment"
           onChange={e => handleFile(e.target.files?.[0])}
           className="hidden"
         />

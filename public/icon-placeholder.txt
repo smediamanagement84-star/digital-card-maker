@@ -1,0 +1,31 @@
+PWA Icon Placeholders
+
+For production deployment, you need to create the following icon files:
+
+1. icon-192.png (192x192 pixels)
+   - Use for Android and small screens
+   - Should be a square icon with the EliteCard logo/branding
+   - Background: #15130F (dark)
+   - Foreground: #D97757 (coral accent)
+
+2. icon-512.png (512x512 pixels)
+   - Use for Android splash screens and high-res displays
+   - Same design as 192x192 but higher resolution
+   - Background: #15130F (dark)
+   - Foreground: #D97757 (coral accent)
+
+Design suggestions:
+- Simple, recognizable icon (e.g., a stylized business card or sparkle icon)
+- High contrast for visibility on all backgrounds
+- Works well at small sizes (maskable icon format)
+- No text in the icon (brand name goes in manifest)
+
+Temporary solution:
+You can use any 192x192 and 512x512 PNG image for testing.
+Or use an online tool like https://realfavicongenerator.net/ to generate all sizes.
+
+Quick fix:
+Copy any existing logo/image and resize to these dimensions using:
+- Photoshop/GIMP
+- Online tools like Canva, Figma
+- CLI tool like ImageMagick: convert logo.png -resize 192x192 icon-192.png

@@ -209,7 +209,7 @@ export default function CardView() {
   const fileName = `${data.name.replace(/\s+/g, '_')}.vcf`;
 
   return (
-    <div className="relative z-10 py-6 sm:py-12 px-4 sm:px-6 min-h-[calc(100vh-64px)]">
+    <div className="relative z-10 py-6 sm:py-12 px-4 sm:px-6 min-h-[calc(100vh-64px)]" style={{ paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom))' }}>
       {/* Back bar */}
       <div className="max-w-md mx-auto mb-4 flex items-center justify-between">
         <button
@@ -243,34 +243,34 @@ export default function CardView() {
           </a>
 
           <div className="grid grid-cols-3 gap-2">
-            <button onClick={shareCard} className="btn-ghost inline-flex items-center justify-center gap-1.5 !py-3 !px-3 text-xs">
-              <Share2 className="w-3.5 h-3.5" />
-              Share
+            <button onClick={shareCard} className="btn-ghost inline-flex items-center justify-center gap-1.5 !py-3 sm:!py-3 !py-3.5 !px-3 text-xs min-h-[44px]">
+              <Share2 className="w-4 h-4" />
+              <span className="hidden xs:inline">Share</span>
             </button>
-            <button onClick={() => setShowQR(true)} className="btn-ghost inline-flex items-center justify-center gap-1.5 !py-3 !px-3 text-xs">
-              <QrCode className="w-3.5 h-3.5" />
-              QR
+            <button onClick={() => setShowQR(true)} className="btn-ghost inline-flex items-center justify-center gap-1.5 !py-3 sm:!py-3 !py-3.5 !px-3 text-xs min-h-[44px]">
+              <QrCode className="w-4 h-4" />
+              <span className="hidden xs:inline">QR</span>
             </button>
             {user && data.uid !== user.uid ? (
               connected ? (
-                <div className="inline-flex items-center justify-center gap-1.5 px-3 py-3 rounded-full text-xs font-semibold bg-emerald-500/15 border border-emerald-400/40 text-emerald-200">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  Saved
+                <div className="inline-flex items-center justify-center gap-1.5 px-3 py-3.5 rounded-full text-xs font-semibold bg-emerald-500/15 border border-emerald-400/40 text-emerald-200 min-h-[44px]">
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span className="hidden xs:inline">Saved</span>
                 </div>
               ) : (
                 <button
                   onClick={addToNetwork}
                   disabled={connecting}
-                  className="btn-ghost inline-flex items-center justify-center gap-1.5 !py-3 !px-3 text-xs disabled:opacity-60"
+                  className="btn-ghost inline-flex items-center justify-center gap-1.5 !py-3 sm:!py-3 !py-3.5 !px-3 text-xs disabled:opacity-60 min-h-[44px]"
                 >
-                  <UserPlus className="w-3.5 h-3.5" />
-                  {connecting ? '…' : 'Connect'}
+                  <UserPlus className="w-4 h-4" />
+                  <span className="hidden xs:inline">{connecting ? '…' : 'Connect'}</span>
                 </button>
               )
             ) : (
               <a
                 href={data.mobile ? `tel:${data.mobile}` : data.email ? `mailto:${data.email}` : '#'}
-                className="btn-ghost inline-flex items-center justify-center gap-1.5 !py-3 !px-3 text-xs"
+                className="btn-ghost inline-flex items-center justify-center gap-1.5 !py-3 sm:!py-3 !py-3.5 !px-3 text-xs min-h-[44px]"
               >
                 Contact
               </a>
@@ -353,7 +353,7 @@ export default function CardView() {
               <h3 className="text-lg font-semibold text-[var(--text)] mb-1 text-center font-display">Scan to connect</h3>
               <p className="text-xs text-white/50 text-center mb-5">Point your camera here to open this card.</p>
               <div className="bg-white p-4 rounded-2xl mx-auto w-fit">
-                <QRCodeSVG value={window.location.href} size={220} level="H" />
+                <QRCodeSVG value={window.location.href} size={Math.min(window.innerWidth - 120, 240)} level="H" />
               </div>
               <a
                 href={vCardHref}
