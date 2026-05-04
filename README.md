@@ -1,17 +1,30 @@
-# Elite Digital Card
+# Digital Card Maker
 
-Premium digital business cards with QR sharing, vCard download, and PWA install. Built with Vite + React 19, Firebase Auth/Firestore, and Tailwind v4.
+Create beautiful, shareable digital business cards in under 2 minutes. Perfect for students, professionals, and event networking. Built with React 19 + Firebase + Vite.
 
-**Live:** https://digicardapp.netlify.app
-**Sample card:** https://digicardapp.netlify.app/d/sample
+**Production URL:** https://card-main-drab.vercel.app
+**GitHub:** https://github.com/smediamanagement84-star/digital-card-maker
+**Status:** Production Ready - KU Hackathon 2026
+
+## Features
+
+- One-click Google Sign-In
+- Custom card themes
+- QR code generation
+- vCard export (download contacts)
+- Public shareable URLs (/d/your-slug)
+- Mobile-optimized and responsive
+- Real-time preview
+- Photo uploads
+- Social links integration
 
 ## Stack
 
 - **Frontend:** React 19, React Router 7, TypeScript, Tailwind v4, Motion
-- **Auth:** Firebase Auth (Google + Phone/SMS with reCAPTCHA)
-- **Data:** Firestore (`cards/{id}` + `usernames/{slug}` mapping for unique slugs)
-- **PWA:** vite-plugin-pwa (autoUpdate, installable on mobile)
-- **Hosting:** Netlify (auto-deploy from `main`)
+- **Auth:** Firebase Auth (Google Sign-In with popup/redirect)
+- **Database:** Cloud Firestore (`cards/{id}` + `usernames/{slug}`)
+- **Build:** Vite 6 with code-splitting
+- **Hosting:** Vercel (auto-deploy from `main` branch)
 
 ## Run locally
 
@@ -35,9 +48,34 @@ src/
     CardView.tsx       # public profile at /d/:slug
     Navbar.tsx
 firestore.rules        # owner-only writes, public reads, slug uniqueness
-netlify.toml           # build = vite, publish = dist, SPA redirect
+vercel.json            # build config, security headers, SPA rewrites
 ```
 
-## Firestore rules
+## Documentation
 
-Cards are publicly readable by slug, writable only by their owner. Slugs are reserved via a separate `usernames` collection in a single batch write to guarantee uniqueness. See `firestore.rules`.
+- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Complete deployment guide and architecture
+- **[FEATURES.md](FEATURES.md)** - Comprehensive feature list and specifications
+- **[TESTING_CHECKLIST.md](TESTING_CHECKLIST.md)** - Full QA checklist (150+ tests)
+- **[HACKATHON_DEMO.md](HACKATHON_DEMO.md)** - Demo script and presentation guide
+
+## Quick Start
+
+### Local Development
+```bash
+npm install
+npm run dev      # http://localhost:3000
+npm run lint     # TypeScript type checking
+npm run build    # Production build
+```
+
+### Deploy to Vercel
+```bash
+vercel          # Preview deployment
+vercel --prod   # Production deployment
+```
+
+Or push to `main` branch for automatic deployment.
+
+## Firestore Security
+
+Cards are publicly readable by slug, writable only by their owner. Slug uniqueness is enforced via atomic writes to a separate `usernames` collection. See `firestore.rules` for complete rules.
