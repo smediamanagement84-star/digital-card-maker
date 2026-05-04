@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { db } from '../firebase';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { supabase } from '../supabase';
 import { motion, AnimatePresence } from 'motion/react';
 import { QRCodeSVG } from 'qrcode.react';
 import { useAuth } from '../App';
@@ -80,25 +79,66 @@ export default function CardView() {
       return;
     }
     try {
-      const usernameRef = doc(db, 'usernames', slug || '');
-      const usernameSnap = await getDoc(usernameRef);
-      if (usernameSnap.exists()) {
-        const cardId = usernameSnap.data().cardId;
-        const cardRef = doc(db, 'cards', cardId);
-        const cardSnap = await getDoc(cardRef);
-        if (cardSnap.exists()) {
-          setData({ ...(cardSnap.data() as CardData), id: cardId });
-        }
+      // Look up card by slug
+      const { data: cards, error } = await supabase
+        .from('cards')
+        .select('*')
+        .eq('slug', slug || '')
+        .limit(1);
+
+      if (error) throw error;
+
+      if (cards && cards.length > 0) {
+        const card = cards[0];
+        // Map from database to CardData format
+        setData({
+          id: card.id,
+          uid: card.uid,
+          userType: card.user_type || 'student',
+          themeId: card.theme_id || 'aurora',
+          themeColor: card.theme_color,
+          accentColor: card.accent_color,
+          fontHeading: card.font_heading,
+          fontBody: card.font_body,
+          slug: card.slug,
+          name: card.name,
+          title: card.title,
+          bio: card.bio,
+          company: card.company,
+          companySub: card.company_sub,
+          university: card.university,
+          education: card.education,
+          educationDegree: card.education_degree,
+          graduationYear: card.graduation_year,
+          skills: card.skills,
+          interests: card.interests,
+          currentEvent: card.current_event,
+          followUpTemplates: card.follow_up_templates || [],
+          mobile: card.mobile,
+          email: card.email,
+          website: card.website,
+          location: card.location,
+          linkedin: card.linkedin,
+          facebook: card.facebook,
+          instagram: card.instagram,
+          github: card.github,
+          xSocial: card.x_social,
+          photoUrl: card.photo_url,
+          logoUrl: card.logo_url,
+        });
       }
-    } catch (err) { console.error(err); }
-    finally { setLoading(false); }
+    } catch (err) {
+      console.error('Error fetching card:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Trigger save-contact prompt after the card has rendered.
   // Only for non-owners and only once per session per card.
   useEffect(() => {
     if (!data) return;
-    if (user && data.uid === user.uid) return;
+    if (user && data.uid === user.id) return;
     const key = `seen-save-prompt-${data.slug}`;
     if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem(key)) return;
     const t = setTimeout(() => {
@@ -111,12 +151,20 @@ export default function CardView() {
   // Check if already in viewer's network.
   useEffect(() => {
     const checkConnected = async () => {
-      if (!user || !data?.id || data.uid === user.uid) return;
+      if (!user || !data?.id || data.uid === user.id) return;
       try {
-        const ref = doc(db, 'users', user.uid, 'connections', data.id);
-        const snap = await getDoc(ref);
-        if (snap.exists()) setConnected(true);
-      } catch {}
+        const { data: connections, error } = await supabase
+          .from('network_connections')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('connected_card_id', data.id)
+          .limit(1);
+
+        if (error) throw error;
+        if (connections && connections.length > 0) setConnected(true);
+      } catch (err) {
+        console.error('Error checking connection:', err);
+      }
     };
     checkConnected();
   }, [user, data?.id]);
@@ -133,22 +181,22 @@ export default function CardView() {
     setConnecting(true);
     showToastMsg('Added to your network!');
     try {
-      await setDoc(doc(db, 'users', user.uid, 'connections', data.id), {
-        cardId: data.id,
-        slug: data.slug,
-        name: data.name,
-        title: data.title || '',
-        company: data.company || '',
-        university: data.university || '',
-        email: data.email || '',
-        mobile: data.mobile || '',
-        addedAt: serverTimestamp(),
-      });
+      const { error } = await supabase
+        .from('network_connections')
+        .insert({
+          user_id: user.id,
+          connected_card_id: data.id,
+          notes: `${data.name} - ${data.title || ''} - ${data.company || data.university || ''}`,
+        });
+
+      if (error) throw error;
     } catch (err) {
-      console.error(err);
+      console.error('Error adding to network:', err);
       setConnected(false);
       showToastMsg('Could not add. Try again.');
-    } finally { setConnecting(false); }
+    } finally {
+      setConnecting(false);
+    }
   };
 
   const shareCard = async () => {
@@ -203,7 +251,7 @@ export default function CardView() {
   );
 
   const theme = getTheme(data.themeId);
-  const isOwner = !!user && data.uid === user.uid;
+  const isOwner = !!user && data.uid === user.id;
   const vCard = buildVCard(data);
   const vCardHref = `data:text/vcard;charset=utf-8,${encodeURIComponent(vCard)}`;
   const fileName = `${data.name.replace(/\s+/g, '_')}.vcf`;
@@ -251,7 +299,7 @@ export default function CardView() {
               <QrCode className="w-4 h-4" />
               <span className="hidden xs:inline">QR</span>
             </button>
-            {user && data.uid !== user.uid ? (
+            {user && data.uid !== user.id ? (
               connected ? (
                 <div className="inline-flex items-center justify-center gap-1.5 px-3 py-3.5 rounded-full text-xs font-semibold bg-emerald-500/15 border border-emerald-400/40 text-emerald-200 min-h-[44px]">
                   <CheckCircle2 className="w-4 h-4" />

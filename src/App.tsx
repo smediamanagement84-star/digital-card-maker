@@ -4,14 +4,24 @@
  */
 
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
-import { onAuthStateChanged, User } from 'firebase/auth';
 import { useState, useEffect, createContext, useContext } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { auth, handleGoogleRedirect } from './firebase';
+import { supabase } from './supabase';
 import Dashboard from './components/Dashboard';
 import CardView from './components/CardView';
 import Landing from './components/Landing';
 import Navbar from './components/Navbar';
+import AuthCallback from './components/AuthCallback';
+
+interface User {
+  id: string;
+  email: string | undefined;
+  user_metadata?: {
+    full_name?: string;
+    avatar_url?: string;
+    name?: string;
+  };
+}
 
 interface AuthContextType {
   user: User | null;
@@ -22,18 +32,7 @@ const AuthContext = createContext<AuthContextType>({ user: null, loading: true }
 export const useAuth = () => useContext(AuthContext);
 
 function PostAuthRedirect() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  useEffect(() => {
-    handleGoogleRedirect()
-      .then(result => {
-        if (result?.user && location.pathname === '/') {
-          navigate('/dashboard', { replace: true });
-        }
-      })
-      .catch(err => console.error('redirect result:', err));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // No longer needed with Supabase - handles redirects automatically
   return null;
 }
 
@@ -59,6 +58,7 @@ function AppRoutes({ user }: { user: User | null }) {
         <Routes location={location}>
           <Route path="/" element={<Landing />} />
           <Route path="/d/:slug" element={<CardView />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
           <Route
             path="/dashboard"
             element={user ? <Dashboard /> : <Navigate to="/" replace />}
@@ -74,11 +74,32 @@ export default function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (u) => {
-      setUser(u);
+    // Check active session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setUser({
+          id: session.user.id,
+          email: session.user.email,
+          user_metadata: session.user.user_metadata,
+        });
+      }
       setLoading(false);
     });
-    return unsubscribe;
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setUser({
+          id: session.user.id,
+          email: session.user.email,
+          user_metadata: session.user.user_metadata,
+        });
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   if (loading) {

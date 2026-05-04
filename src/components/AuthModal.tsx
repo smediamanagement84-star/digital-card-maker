@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { loginWithGoogle } from '../firebase';
+import { loginWithGoogle } from '../supabase';
 import { X, RefreshCw, Sparkles, ShieldCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -19,27 +19,23 @@ const GoogleLogo = ({ className = 'w-5 h-5' }: { className?: string }) => (
   </svg>
 );
 
-function describeError(code: string, fallbackMsg?: string): string {
-  switch (code) {
-    case 'auth/unauthorized-domain':
-      return "This domain isn't authorized in Firebase. Add it under Authentication → Settings → Authorized domains.";
-    case 'auth/popup-blocked':
-      return 'Pop-up blocked. Allow pop-ups for this site and try again.';
-    case 'auth/popup-closed-by-user':
-    case 'auth/cancelled-popup-request':
-    case 'auth/cancelled-by-user':
-      return 'Sign-in cancelled.';
-    case 'auth/network-request-failed':
-      return 'Network error. Check your connection and try again.';
-    case 'auth/too-many-requests':
-      return 'Too many attempts. Wait a few minutes and try again.';
-    case 'auth/user-disabled':
-      return 'This account has been disabled.';
-    case 'auth/internal-error':
-      return 'Auth backend error. Refresh and try again.';
-    default:
-      return fallbackMsg || (code ? `Sign-in failed (${code})` : 'Sign-in failed. Please try again.');
+function describeError(message?: string): string {
+  if (!message) return 'Sign-in failed. Please try again.';
+
+  if (message.includes('redirect') || message.includes('callback')) {
+    return 'Sign-in initiated. You will be redirected to Google...';
   }
+  if (message.includes('network')) {
+    return 'Network error. Check your connection and try again.';
+  }
+  if (message.includes('cancelled') || message.includes('closed')) {
+    return 'Sign-in cancelled.';
+  }
+  if (message.includes('disabled')) {
+    return 'This account has been disabled.';
+  }
+
+  return message;
 }
 
 export default function AuthModal({ isOpen, onClose, redirectTo = '/dashboard' }: AuthModalProps) {
@@ -51,18 +47,14 @@ export default function AuthModal({ isOpen, onClose, redirectTo = '/dashboard' }
     setError(null);
     setLoading(true);
     try {
-      const result: any = await loginWithGoogle();
-      if (result?.user) {
-        onClose();
-        setTimeout(() => navigate(redirectTo), 40);
-      } else {
-        // Redirect flow — the page is about to navigate away.
-        onClose();
-      }
+      // Supabase will redirect to Google OAuth
+      // Then redirect back to /auth/callback
+      await loginWithGoogle();
+      onClose();
+      // User will be redirected away, no need to navigate
     } catch (err: any) {
       console.error('Google sign-in error:', err);
-      setError(describeError(err?.code || '', err?.message));
-    } finally {
+      setError(describeError(err?.message));
       setLoading(false);
     }
   };
@@ -141,7 +133,7 @@ export default function AuthModal({ isOpen, onClose, redirectTo = '/dashboard' }
             </div>
 
             <p className="text-[10px] text-[var(--text-faint)] text-center pt-3 max-w-xs mx-auto leading-relaxed">
-              By continuing you agree to share your name, email, and avatar with EliteCard.
+              By continuing you agree to share your name, email, and avatar with CardChemy.
             </p>
           </motion.div>
         </div>

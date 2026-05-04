@@ -1,10 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../App';
-import { db } from '../firebase';
-import {
-  collection, query, where, getDocs, doc,
-  updateDoc, serverTimestamp, writeBatch
-} from 'firebase/firestore';
+import { supabase } from '../supabase';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Save, ExternalLink, RefreshCw, AlertCircle, CheckCircle2,
@@ -63,21 +59,37 @@ interface CardData {
 const emptyCard = (uid: string): CardData => ({
   userType: 'student',
   themeId: 'aurora',
-  name: '', title: '', bio: '',
-  company: '', companySub: '',
-  university: '', education: '', educationDegree: '', graduationYear: '',
-  skills: '', interests: '', currentEvent: '',
+  name: '',
+  title: '',
+  bio: '',
+  company: '',
+  companySub: '',
+  university: '',
+  education: '',
+  educationDegree: '',
+  graduationYear: '',
+  skills: '',
+  interests: '',
+  currentEvent: '',
   followUpTemplates: [],
-  mobile: '', email: '', website: '', location: '',
-  linkedin: '', facebook: '', instagram: '', github: '', xSocial: '',
-  photoUrl: '', logoUrl: '',
+  mobile: '',
+  email: '',
+  website: '',
+  location: '',
+  linkedin: '',
+  facebook: '',
+  instagram: '',
+  github: '',
+  xSocial: '',
+  photoUrl: '',
+  logoUrl: '',
   slug: '',
   uid,
 });
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const [data, setData] = useState<CardData>(emptyCard(user?.uid || ''));
+  const [data, setData] = useState<CardData>(emptyCard(user?.id || ''));
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -91,25 +103,71 @@ export default function Dashboard() {
 
   const fetchCard = async () => {
     try {
-      const q = query(collection(db, 'cards'), where('uid', '==', user?.uid));
-      const snap = await getDocs(q);
-      if (!snap.empty) {
-        const cardDoc = snap.docs[0];
-        const raw = cardDoc.data() as Partial<CardData>;
-        setData({ ...emptyCard(user?.uid || ''), ...raw, id: cardDoc.id });
+      const { data: cards, error } = await supabase
+        .from('cards')
+        .select('*')
+        .eq('uid', user?.id)
+        .limit(1);
+
+      if (error) throw error;
+
+      if (cards && cards.length > 0) {
+        const card = cards[0];
+        // Map database fields to CardData interface
+        setData({
+          ...emptyCard(user?.id || ''),
+          id: card.id,
+          uid: card.uid,
+          userType: card.user_type || 'student',
+          themeId: card.theme_id || 'aurora',
+          themeColor: card.theme_color || '',
+          accentColor: card.accent_color || '',
+          fontHeading: card.font_heading || '',
+          fontBody: card.font_body || '',
+          slug: card.slug || '',
+          name: card.name || '',
+          title: card.title || '',
+          bio: card.bio || '',
+          company: card.company || '',
+          companySub: card.company_sub || '',
+          university: card.university || '',
+          education: card.education || '',
+          educationDegree: card.education_degree || '',
+          graduationYear: card.graduation_year || '',
+          skills: card.skills || '',
+          interests: card.interests || '',
+          currentEvent: card.current_event || '',
+          followUpTemplates: card.follow_up_templates || [],
+          mobile: card.mobile || '',
+          email: card.email || '',
+          website: card.website || '',
+          location: card.location || '',
+          linkedin: card.linkedin || '',
+          facebook: card.facebook || '',
+          instagram: card.instagram || '',
+          github: card.github || '',
+          xSocial: card.x_social || '',
+          photoUrl: card.photo_url || '',
+          logoUrl: card.logo_url || '',
+        });
       } else {
+        // New user - prefill with auth data
+        const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name || '';
         setData(prev => ({
           ...prev,
-          name: user?.displayName || '',
+          name: displayName,
           email: user?.email || '',
-          photoUrl: user?.photoURL || '',
-          slug: user?.displayName?.toLowerCase().replace(/\s+/g, '-').replace(/-+/g, '-') || `user-${user?.uid.slice(0, 5)}`,
-          uid: user?.uid || '',
+          photoUrl: user?.user_metadata?.avatar_url || '',
+          slug: displayName?.toLowerCase().replace(/\s+/g, '-').replace(/-+/g, '-') || `user-${user?.id.slice(0, 5)}`,
+          uid: user?.id || '',
         }));
         setShowOnboarding(true);
       }
-    } catch (err) { console.error(err); }
-    finally { setLoading(false); }
+    } catch (err) {
+      console.error('Error fetching card:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSave = async (e: import('react').FormEvent) => {
@@ -118,29 +176,118 @@ export default function Dashboard() {
     setMessage(null);
     try {
       if (data.id) {
-        const cardRef = doc(db, 'cards', data.id);
-        await updateDoc(cardRef, { ...data, updatedAt: serverTimestamp() });
+        // Update existing card
+        const { error } = await supabase
+          .from('cards')
+          .update({
+            user_type: data.userType,
+            theme_id: data.themeId,
+            theme_color: data.themeColor,
+            accent_color: data.accentColor,
+            font_heading: data.fontHeading,
+            font_body: data.fontBody,
+            slug: data.slug,
+            name: data.name,
+            title: data.title,
+            bio: data.bio,
+            company: data.company,
+            company_sub: data.companySub,
+            university: data.university,
+            education: data.education,
+            education_degree: data.educationDegree,
+            graduation_year: data.graduationYear,
+            skills: data.skills,
+            interests: data.interests,
+            current_event: data.currentEvent,
+            follow_up_templates: data.followUpTemplates,
+            mobile: data.mobile,
+            email: data.email,
+            website: data.website,
+            location: data.location,
+            linkedin: data.linkedin,
+            facebook: data.facebook,
+            instagram: data.instagram,
+            github: data.github,
+            x_social: data.xSocial,
+            photo_url: data.photoUrl,
+            logo_url: data.logoUrl,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', data.id);
+
+        if (error) throw error;
         setMessage({ type: 'success', text: '✨ Card updated!' });
       } else {
-        const newId = doc(collection(db, 'cards')).id;
-        const batch = writeBatch(db);
-        batch.set(doc(db, 'usernames', data.slug), { cardId: newId });
-        batch.set(doc(db, 'cards', newId), {
-          ...data,
-          uid: user?.uid,
-          id: newId,
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp(),
-        });
-        await batch.commit();
-        setData(prev => ({ ...prev, id: newId }));
+        // Create new card - first insert username, then card
+        const { error: usernameError } = await supabase
+          .from('usernames')
+          .insert({ slug: data.slug, card_id: 'temp' });
+
+        if (usernameError) {
+          if (usernameError.message.includes('duplicate') || usernameError.code === '23505') {
+            throw new Error('This slug is already taken. Please choose another.');
+          }
+          throw usernameError;
+        }
+
+        // Create the card
+        const { data: newCard, error: cardError } = await supabase
+          .from('cards')
+          .insert({
+            uid: user?.id,
+            user_type: data.userType,
+            theme_id: data.themeId,
+            theme_color: data.themeColor,
+            accent_color: data.accentColor,
+            font_heading: data.fontHeading,
+            font_body: data.fontBody,
+            slug: data.slug,
+            name: data.name,
+            title: data.title,
+            bio: data.bio,
+            company: data.company,
+            company_sub: data.companySub,
+            university: data.university,
+            education: data.education,
+            education_degree: data.educationDegree,
+            graduation_year: data.graduationYear,
+            skills: data.skills,
+            interests: data.interests,
+            current_event: data.currentEvent,
+            follow_up_templates: data.followUpTemplates,
+            mobile: data.mobile,
+            email: data.email,
+            website: data.website,
+            location: data.location,
+            linkedin: data.linkedin,
+            facebook: data.facebook,
+            instagram: data.instagram,
+            github: data.github,
+            x_social: data.xSocial,
+            photo_url: data.photoUrl,
+            logo_url: data.logoUrl,
+          })
+          .select()
+          .single();
+
+        if (cardError) throw cardError;
+
+        // Update username entry with real card_id
+        await supabase
+          .from('usernames')
+          .update({ card_id: newCard.id })
+          .eq('slug', data.slug);
+
+        setData(prev => ({ ...prev, id: newCard.id }));
         setMessage({ type: 'success', text: '🎉 Card created — share your QR!' });
       }
       setTimeout(() => setMessage(null), 4000);
     } catch (err: any) {
-      console.error(err);
+      console.error('Save error:', err);
       setMessage({ type: 'error', text: err.message || 'Failed to save card.' });
-    } finally { setSaving(false); }
+    } finally {
+      setSaving(false);
+    }
   };
 
   const onPickType = (type: UserType) => {
@@ -203,7 +350,7 @@ export default function Dashboard() {
             </button>
           </div>
           <h2 className="text-3xl sm:text-4xl font-semibold font-display text-[var(--text)]">
-            Hey, <span className="gradient-text italic">{(data.name || user?.displayName || 'there').split(' ')[0]}</span>
+            Hey, <span className="gradient-text italic">{(data.name || user?.user_metadata?.full_name || user?.user_metadata?.name || 'there').split(' ')[0]}</span>
           </h2>
           <p className="text-white/50 text-sm max-w-md">
             {isStudent
@@ -269,7 +416,7 @@ export default function Dashboard() {
             >
               {activeSection === 'identity' && (
                 <Section title="Identity" desc="The basics — what people see first.">
-                  <Field label="URL slug" hint="Your card lives at digicardapp.netlify.app/d/[slug]">
+                  <Field label="URL slug" hint="Your card lives at cardchemy.vercel.app/d/[slug]">
                     <input
                       type="text" value={data.slug}
                       onChange={e => setData({ ...data, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-') })}
@@ -408,7 +555,7 @@ export default function Dashboard() {
           {data.id && (
             <div className="space-y-6 pt-4">
               <QRPanel slug={data.slug} accentColor={theme.accent} />
-              <NetworkPanel uid={user?.uid || ''} />
+              <NetworkPanel uid={user?.id || ''} />
               {!isStudent && (
                 <TemplatesPanel
                   templates={data.followUpTemplates}

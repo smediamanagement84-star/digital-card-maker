@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../App';
-import { logout } from '../firebase';
+import { logout } from '../supabase';
 import { LogIn, LogOut, LayoutDashboard, Sparkles } from 'lucide-react';
 import { useState } from 'react';
 import AuthModal from './AuthModal';
@@ -18,7 +18,7 @@ export default function Navbar() {
               <Sparkles className="w-4 h-4 text-[var(--bg)]" />
             </div>
             <span className="font-semibold text-lg tracking-tight font-display text-[var(--text)]">
-              EliteCard
+              CardChemy
             </span>
           </Link>
 
@@ -40,10 +40,10 @@ export default function Navbar() {
                   <span className="hidden sm:inline">Sign Out</span>
                 </button>
                 <div className="w-9 h-9 rounded-full overflow-hidden bg-[var(--accent)] flex items-center justify-center text-xs font-bold text-[var(--bg)]">
-                  {user.photoURL ? (
-                    <img src={user.photoURL} alt={user.displayName || ''} className="w-full h-full object-cover" />
+                  {user.user_metadata?.avatar_url ? (
+                    <img src={user.user_metadata.avatar_url} alt={user.user_metadata?.full_name || user.user_metadata?.name || ''} className="w-full h-full object-cover" />
                   ) : (
-                    <span>{(user.displayName || user.email || 'U').charAt(0).toUpperCase()}</span>
+                    <span>{((user.user_metadata?.full_name || user.user_metadata?.name) || user.email || 'U').charAt(0).toUpperCase()}</span>
                   )}
                 </div>
               </>

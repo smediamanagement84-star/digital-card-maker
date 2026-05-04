@@ -1,7 +1,7 @@
 {
-  "name": "EliteCard - Digital Business Cards",
-  "short_name": "EliteCard",
-  "description": "Create and share beautiful digital business cards. Perfect for students and professionals at hackathons, career fairs, and networking events.",
+  "name": "CardChemy - Digital Business Cards",
+  "short_name": "CardChemy",
+  "description": "Transform your professional presence into digital gold. Create and share beautiful digital business cards. Perfect for students and professionals at hackathons, career fairs, and networking events.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#15130F",
